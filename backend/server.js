@@ -73,13 +73,11 @@ try {
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "/frontend/dist")));
-
-  // ✅ Use regex instead of "*"
-  app.get("/*", (req, res) => {
+  // ✅ Simple wildcard - catches all routes
+  app.get("*", (req, res) => {
     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
   });
 }
-
 app.listen(PORT, () => {
 	console.log(`🚀 Server is running on port ${PORT}`);
 });
