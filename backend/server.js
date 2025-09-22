@@ -72,13 +72,12 @@ try {
 }
 
 if (process.env.NODE_ENV === "production") {
-	console.log("📦 Serving frontend from dist...");
-	app.use(express.static(path.join(__dirname, "/frontend/dist")));
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
-	app.get("*", (req, res) => {
-		console.log("⚡ Handling fallback route for frontend");
-		res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
-	});
+  // ✅ Use regex instead of "*"
+  app.get("/*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
 }
 
 app.listen(PORT, () => {
