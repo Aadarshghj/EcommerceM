@@ -12,10 +12,8 @@ import cors from "cors";
 import path from "path";
 
 dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 5000;
-
 const __dirname = path.resolve();
 
 app.use(
@@ -24,60 +22,99 @@ app.use(
 		credentials: true,
 	})
 );
-
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 
-// 🔍 Debugging each route load
+// 🔍 Enhanced debugging - load routes one by one with process.exit to isolate the problem
 try {
 	console.log("Loading /api/auth");
 	app.use("/api/auth", authRoutes);
+	console.log("✅ Auth routes loaded successfully");
 } catch (err) {
-	console.error("❌ Error in /api/auth:", err);
+	console.error("❌ Error in /api/auth:", err.message);
+	console.error("Stack:", err.stack);
+	process.exit(1);
 }
 
 try {
 	console.log("Loading /api/products");
 	app.use("/api/products", prodctRoutes);
+	console.log("✅ Products routes loaded successfully");
 } catch (err) {
-	console.error("❌ Error in /api/products:", err);
+	console.error("❌ Error in /api/products:", err.message);
+	console.error("Stack:", err.stack);
+	process.exit(1);
 }
 
 try {
 	console.log("Loading /api/cart");
 	app.use("/api/cart", cartRoutes);
+	console.log("✅ Cart routes loaded successfully");
 } catch (err) {
-	console.error("❌ Error in /api/cart:", err);
+	console.error("❌ Error in /api/cart:", err.message);
+	console.error("Stack:", err.stack);
+	process.exit(1);
 }
 
 try {
 	console.log("Loading /api/coupen");
 	app.use("/api/coupen", coupenRoutes);
+	console.log("✅ Coupen routes loaded successfully");
 } catch (err) {
-	console.error("❌ Error in /api/coupen:", err);
+	console.error("❌ Error in /api/coupen:", err.message);
+	console.error("Stack:", err.stack);
+	process.exit(1);
 }
 
 try {
 	console.log("Loading /api/payments");
 	app.use("/api/payments", paymentRoutes);
+	console.log("✅ Payments routes loaded successfully");
 } catch (err) {
-	console.error("❌ Error in /api/payments:", err);
+	console.error("❌ Error in /api/payments:", err.message);
+	console.error("Stack:", err.stack);
+	process.exit(1);
 }
 
 try {
 	console.log("Loading /api/analytics");
 	app.use("/api/analytics", analyticsRoutes);
+	console.log("✅ Analytics routes loaded successfully");
 } catch (err) {
-	console.error("❌ Error in /api/analytics:", err);
+	console.error("❌ Error in /api/analytics:", err.message);
+	console.error("Stack:", err.stack);
+	process.exit(1);
 }
 
+console.log("🎉 All routes registered successfully!");
+
+// Production static files setup
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "/frontend/dist")));
-  // ✅ Simple wildcard - catches all routes
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
-  });
+	console.log("📁 Setting up production static files...");
+	
+	try {
+		app.use(express.static(path.join(__dirname, "/frontend/dist")));
+		console.log("✅ Static files middleware added");
+		
+		app.get("*", (req, res) => {
+			res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+		});
+		console.log("✅ Catch-all route added");
+	} catch (err) {
+		console.error("❌ Error setting up production files:", err.message);
+		console.error("Stack:", err.stack);
+		process.exit(1);
+	}
 }
-app.listen(PORT, () => {
-	console.log(`🚀 Server is running on port ${PORT}`);
-});
+
+console.log("🚀 Starting server...");
+
+try {
+	app.listen(PORT, () => {
+		console.log(`🚀 Server is running on port ${PORT}`);
+	});
+} catch (err) {
+	console.error("❌ Error starting server:", err.message);
+	console.error("Stack:", err.stack);
+	process.exit(1);
+}
