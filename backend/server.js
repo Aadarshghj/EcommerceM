@@ -96,14 +96,28 @@ if (process.env.NODE_ENV === "production") {
 		app.use(express.static(path.join(__dirname, "/frontend/dist")));
 		console.log("✅ Static files middleware added");
 		
-		app.get("*", (req, res) => {
+		// Try different catch-all patterns to see which works
+		// Option 1: Use regex instead of string pattern
+		app.get(/.*/, (req, res) => {
 			res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
 		});
-		console.log("✅ Catch-all route added");
+		console.log("✅ Catch-all route added with regex");
+		
 	} catch (err) {
 		console.error("❌ Error setting up production files:", err.message);
 		console.error("Stack:", err.stack);
-		process.exit(1);
+		
+		// If regex fails, try a different approach
+		try {
+			console.log("🔄 Trying alternative catch-all approach...");
+			app.get("/:path(*)", (req, res) => {
+				res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+			});
+			console.log("✅ Catch-all route added with parameter approach");
+		} catch (err2) {
+			console.error("❌ Alternative approach also failed:", err2.message);
+			process.exit(1);
+		}
 	}
 }
 
